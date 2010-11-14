@@ -1,0 +1,33 @@
+[public bodyEntry: Body* $body]
+	{if $body->type == Body_Type_Paragraph}
+		<p>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</p>
+	{else $body->type == Body_Type_Block}
+		{if $body->block.type == Body_BlockType_Note}
+			<p class="note">
+		{else}
+			<p class="warning">
+		{end}
+
+		{for $entry in $body->nodes}{block bodyEntry $entry}{end}</p>
+	{else $body->type == Body_Type_List}
+		<ul>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</ul>
+	{else $body->type == Body_Type_ListItem}
+		<li>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</li>
+	{else $body->type == Body_Type_Url}
+		<a href="{$body->url.url}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
+	{else $body->type == Body_Type_Text}
+		{~TemplateHelper_PrintStyled $body->text.style, $body->text.value}
+	{else $body->type == Body_Type_Command}
+		<script type="syntaxhighlighter" class="brush: shell"><!\[CDATA\[{$body->command.value}]]></script>
+	{else $body->type == Body_Type_Code}
+		<script type="syntaxhighlighter" class="brush: c"><!\[CDATA\[{$body->code.value}]]></script>
+	{else $body->type == Body_Type_Mail}
+		<a href="mailto:{$body->mail.addr}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
+	{else $body->type == Body_Type_Anchor}
+		<a name="{$body->anchor.name}"></a>
+	{else $body->type == Body_Type_Jump}
+		<a href="#{$body->jump.anchor}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
+	{else $body->type == Body_Type_Image}
+		<img src="{$body->image.path}" />
+	{end}
+[end]
