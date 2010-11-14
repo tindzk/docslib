@@ -1,5 +1,7 @@
 [public bodyEntry: Body* $body]
-	{if $body->type == Body_Type_Paragraph}
+	{if $body->type == Body_Type_Collection}
+		{for $entry in $body->nodes}{block bodyEntry $entry}{end}
+	{else $body->type == Body_Type_Paragraph}
 		<p>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</p>
 	{else $body->type == Body_Type_Block}
 		{if $body->block.type == Body_BlockType_Note}
