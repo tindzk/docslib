@@ -3,4 +3,4 @@
 
 #import "Body.h"
 
-String TemplateHelper_PrintStyled(int style, String s);
+overload void Template_Print(int style, String s, String *res);

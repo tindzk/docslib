@@ -18,7 +18,7 @@
 	{else $body->type == Body_Type_Url}
 		<a href="{$body->url.url}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
 	{else $body->type == Body_Type_Text}
-		{~TemplateHelper_PrintStyled $body->text.style, $body->text.value}
+		{$body->text.style, $body->text.value}
 	{else $body->type == Body_Type_Command}
 		<script type="syntaxhighlighter" class="brush: shell"><!\[CDATA\[{$body->command.value}]]></script>
 	{else $body->type == Body_Type_Code}
