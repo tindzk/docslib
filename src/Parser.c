@@ -76,14 +76,14 @@ def(Typography_Node *, GetRoot) {
 static def(String, GetValue, Typography_Node *node) {
 	if (node->len == 0) {
 		Logger_Error(&logger, $("line %: value expected."),
-			Integer_ToString(node->line));
+			Int32_ToString(node->line));
 
 		return $("");
 	}
 
 	if (node->len > 1) {
 		Logger_Error(&logger, $("line %: too many nodes."),
-			Integer_ToString(node->line));
+			Int32_ToString(node->line));
 
 		return $("");
 	}
@@ -93,7 +93,7 @@ static def(String, GetValue, Typography_Node *node) {
 	if (child->type != Typography_NodeType_Text) {
 		Logger_Error(&logger,
 			$("line %: node given, text expected."),
-			Integer_ToString(node->line));
+			Int32_ToString(node->line));
 
 		return $("");
 	}
@@ -183,7 +183,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 			if (!String_Equals(Typography_Item(child)->name, $("item"))) {
 				Logger_Error(&logger,
 					$("line %: got '%', 'item' expected."),
-					Integer_ToString(child->line),
+					Int32_ToString(child->line),
 					Typography_Item(child)->name);
 
 				continue;
@@ -317,7 +317,7 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 	} else {
 		Logger_Error(&logger,
 			$("line %: '%' not understood."),
-			Integer_ToString(child->line),
+			Int32_ToString(child->line),
 			Typography_Item(child)->name);
 	}
 }
