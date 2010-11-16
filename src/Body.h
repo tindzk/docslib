@@ -28,40 +28,40 @@ set(ref(BlockType)) {
 	ref(BlockType_Warning)
 };
 
-class(ref(Text)) {
+record(ref(Text)) {
 	String value;
 	int style;
 };
 
-class(ref(Block)) {
+record(ref(Block)) {
 	ref(BlockType) type;
 };
 
-class(ref(Image)) {
+record(ref(Image)) {
 	String path;
 };
 
-class(ref(Command)) {
+record(ref(Command)) {
 	String value;
 };
 
-class(ref(Code)) {
+record(ref(Code)) {
 	String value;
 };
 
-class(ref(Mail)) {
+record(ref(Mail)) {
 	String addr;
 };
 
-class(ref(Anchor)) {
+record(ref(Anchor)) {
 	String name;
 };
 
-class(ref(Jump)) {
+record(ref(Jump)) {
 	String anchor;
 };
 
-class(ref(Url)) {
+record(ref(Url)) {
 	String url;
 };
 
