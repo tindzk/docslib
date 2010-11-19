@@ -28,7 +28,7 @@ static struct {
 };
 
 Body_Style ref(ResolveStyle)(String name) {
-	for (size_t i = 0; i < nElems(styles); i++) {
+	forward(i, nElems(styles)) {
 		if (String_Equals(name, styles[i].name)) {
 			return styles[i].style;
 		}
@@ -38,7 +38,7 @@ Body_Style ref(ResolveStyle)(String name) {
 }
 
 Body_BlockType ref(ResolveBlock)(String name) {
-	for (size_t i = 0; i < nElems(blocks); i++) {
+	forward(i, nElems(blocks)) {
 		if (String_Equals(name, blocks[i].name)) {
 			return blocks[i].block;
 		}
@@ -176,7 +176,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 	Body *list = call(Enter, body);
 	call(SetList, list);
 
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -363,7 +363,7 @@ static def(String, CleanText, String value) {
 }
 
 static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) {
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Text) {
@@ -384,7 +384,7 @@ static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) 
 }
 
 static def(String, GetMetaValue, String name, Typography_Node *node) {
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -400,7 +400,7 @@ static def(String, GetMetaValue, String name, Typography_Node *node) {
 def(String, GetMeta, String name) {
 	Typography_Node *node = Typography_GetRoot(&this->tyo);
 
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -419,7 +419,7 @@ def(Body, GetBody, Typography_Node *node, String ignore) {
 		.nodes = BodyArray_New(Body_DefaultLength)
 	};
 
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Text) {
@@ -448,7 +448,7 @@ def(Body, GetBody, Typography_Node *node, String ignore) {
 def(ref(Nodes) *, GetNodes, Typography_Node *node) {
 	ref(Nodes) *res = scall(Nodes_New, 0);
 
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -468,7 +468,7 @@ def(ref(Nodes) *, GetNodes, Typography_Node *node) {
 def(ref(Node), GetNodeByName, String name) {
 	Typography_Node *node = Typography_GetRoot(&this->tyo);
 
-	for (size_t i = 0; i < node->len; i++) {
+	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {

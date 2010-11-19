@@ -18,7 +18,7 @@ static struct {
 };
 
 overload void Template_Print(int style, String s, String *res) {
-	for (size_t i = 0; i < nElems(styles); i++) {
+	forward(i, nElems(styles)) {
 		if (style & styles[i].style) {
 			String_Append(res, $("<"));
 			String_Append(res, styles[i].tag);
@@ -34,7 +34,7 @@ overload void Template_Print(int style, String s, String *res) {
 
 	HTML_Entities_Encode(s, res);
 
-	for (ssize_t i = nElems(styles) - 1; i >= 0; i--) {
+	reverse(i, nElems(styles)) {
 		if (style & styles[i].style) {
 			String_Append(res, $("</"));
 			String_Append(res, styles[i].tag);
