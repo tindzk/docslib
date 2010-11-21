@@ -24,7 +24,8 @@ static struct {
 	Body_BlockType block;
 } blocks[] = {
 	{ $("note"),    Body_BlockType_Note    },
-	{ $("warning"), Body_BlockType_Warning }
+	{ $("warning"), Body_BlockType_Warning },
+	{ $("quote"),   Body_BlockType_Quote   }
 };
 
 Body_Style ref(ResolveStyle)(String name) {

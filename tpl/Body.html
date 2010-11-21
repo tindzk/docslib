@@ -6,11 +6,19 @@
 	{else $body->type == Body_Type_Block}
 		{if $body->block.type == Body_BlockType_Note}
 			<p class="note">
-		{else}
+		{else $body->block.type == Body_BlockType_Warning}
 			<p class="warning">
+		{else $body->block.type == Body_BlockType_Quote}
+			<blockquote>
 		{end}
 
-		{for $entry in $body->nodes}{block bodyEntry $entry}{end}</p>
+		{for $entry in $body->nodes}{block bodyEntry $entry}{end}
+
+		{if $body->block.type == Body_BlockType_Quote}
+			</blockquote>
+		{else}
+			</p>
+		{end}
 	{else $body->type == Body_Type_List}
 		<ul>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</ul>
 	{else $body->type == Body_Type_ListItem}

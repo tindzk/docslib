@@ -25,7 +25,8 @@ set(ref(Style)) {
 set(ref(BlockType)) {
 	ref(BlockType_None),
 	ref(BlockType_Note),
-	ref(BlockType_Warning)
+	ref(BlockType_Warning),
+	ref(BlockType_Quote)
 };
 
 record(ref(Text)) {
