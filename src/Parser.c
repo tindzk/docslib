@@ -127,8 +127,9 @@ static def(void, SetUrl, Body *body, String url) {
 	body->url.url = url;
 }
 
-static def(void, SetList, Body *body) {
+static def(void, SetList, Body *body, bool ordered) {
 	body->type = Body_Type_List;
+	body->list.ordered = ordered;
 }
 
 static def(void, SetListItem, Body *body) {
@@ -174,8 +175,11 @@ static def(void, SetJump, Body *body, String anchor) {
 static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style);
 
 static def(void, ParseList, Body *body, Typography_Node *node) {
+	String options = String_Trim(Typography_Item(node)->options);
+	bool ordered = String_Equals(options, $("ordered"));
+
 	Body *list = call(Enter, body);
-	call(SetList, list);
+	call(SetList, list, ordered);
 
 	forward(i, node->len) {
 		Typography_Node *child = node->buf[i];

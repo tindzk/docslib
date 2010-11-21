@@ -20,7 +20,19 @@
 			</p>
 		{end}
 	{else $body->type == Body_Type_List}
-		<ul>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</ul>
+		{if $body->list.ordered}
+			<ol>
+		{else}
+			<ul>
+		{end}
+
+		{for $entry in $body->nodes}{block bodyEntry $entry}{end}
+
+		{if $body->list.ordered}
+			</ol>
+		{else}
+			</ul>
+		{end}
 	{else $body->type == Body_Type_ListItem}
 		<li>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</li>
 	{else $body->type == Body_Type_Url}

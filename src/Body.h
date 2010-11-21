@@ -62,6 +62,10 @@ record(ref(Jump)) {
 	String anchor;
 };
 
+record(ref(List)) {
+	bool ordered;
+};
+
 record(ref(Url)) {
 	String url;
 };
@@ -90,6 +94,7 @@ class(self) {
 
 	union {
 		ref(Url)     url;
+		ref(List)    list;
 		ref(Code)    code;
 		ref(Mail)    mail;
 		ref(Text)    text;
