@@ -1,5 +1,4 @@
 #import "Body.h"
-#import "App.h"
 
 sdef(self, Empty) {
 	self res;
