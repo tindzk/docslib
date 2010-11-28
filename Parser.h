@@ -19,11 +19,9 @@ record(ref(Node)) {
 
 Array_Define(ref(Node), ref(Nodes));
 
-class(self) {
+class {
 	Typography tyo;
 };
-
-ExtendClass(self);
 
 def(void, Init);
 def(void, Destroy);

@@ -89,7 +89,7 @@ set(ref(Type)) {
 
 Array_Define(struct self *, BodyArray);
 
-class(self) {
+class {
 	ref(Type) type;
 
 	union {
