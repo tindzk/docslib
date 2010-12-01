@@ -1,5 +1,7 @@
 #import "Parser.h"
 
+#define self Parser
+
 extern Logger logger;
 
 static struct {

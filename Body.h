@@ -1,7 +1,6 @@
 #import <Bit.h>
 #import <String.h>
 
-#undef self
 #define self Body
 
 #ifndef Body_DefaultLength
@@ -110,3 +109,5 @@ class {
 
 sdef(self, Empty);
 def(void, Destroy);
+
+#undef self

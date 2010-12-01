@@ -1,5 +1,7 @@
 #import "Body.h"
 
+#define self Body
+
 sdef(self, Empty) {
 	self res;
 

@@ -8,7 +8,6 @@
 
 #import "Body.h"
 
-#undef self
 #define self Parser
 
 record(ref(Node)) {
@@ -31,3 +30,5 @@ def(String, GetMeta, String name);
 def(Body, GetBody, Typography_Node *node, String ignore);
 def(ref(Nodes) *, GetNodes, Typography_Node *node);
 def(ref(Node), GetNodeByName, String name);
+
+#undef self
