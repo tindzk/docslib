@@ -16,7 +16,7 @@ record(ref(Node)) {
 	Typography_Node *node;
 };
 
-Array_Define(ref(Node), ref(Nodes));
+Array(ref(Node), ref(Nodes));
 
 class {
 	Typography tyo;

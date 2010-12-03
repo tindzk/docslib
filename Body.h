@@ -86,7 +86,7 @@ set(ref(Type)) {
 	ref(Type_Empty)
 };
 
-Array_Define(struct self *, BodyArray);
+Array(struct self *, BodyArray);
 
 class {
 	ref(Type) type;
