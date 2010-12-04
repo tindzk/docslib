@@ -454,7 +454,7 @@ def(Body, GetBody, Typography_Node *node, String ignore) {
 def(ref(Nodes) *, GetNodes, Typography_Node *node) {
 	ref(Nodes) *res = scall(Nodes_New, 0);
 
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -471,10 +471,34 @@ def(ref(Nodes) *, GetNodes, Typography_Node *node) {
 	return res;
 }
 
+def(ref(Nodes) *, GetNodesByName, Typography_Node *node, String name) {
+	ref(Nodes) *res = scall(Nodes_New, 0);
+
+	forward (i, node->len) {
+		Typography_Node *child = node->buf[i];
+
+		if (child->type == Typography_NodeType_Item) {
+			if (!String_Equals(Typography_Item(child)->name, name)) {
+				continue;
+			}
+
+			ref(Node) node = {
+				.name    = String_Disown(Typography_Item(child)->name),
+				.options = String_Disown(Typography_Item(child)->options),
+				.node    = child
+			};
+
+			scall(Nodes_Push, &res, node);
+		}
+	}
+
+	return res;
+}
+
 def(ref(Node), GetNodeByName, String name) {
 	Typography_Node *node = Typography_GetRoot(&this->tyo);
 
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
