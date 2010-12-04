@@ -244,10 +244,45 @@ static def(String, CleanValue, String value) {
 	foreach (line, lines) {
 		if (line->len > 0) {
 			*line = String_Slice(*line, unindent);
+
+			/* Replace all leading tabs by 4 spaces as there is no
+			 * `tab-stops' property in CSS.
+			 * See also http://www.pixelastic.com/blog/79:setting-the-size-of-a-tab-character-in-a-element
+			 */
+
+			size_t tabs = 0;
+
+			forward (i, line->len) {
+				if (line->buf[i] == '\t') {
+					tabs++;
+				} else {
+					break;
+				}
+			}
+
+			if (tabs > 0) {
+				String new = HeapString(line->len - tabs + tabs * 4);
+
+				repeat (tabs * 4) {
+					new.buf[new.len] = ' ';
+					new.len++;
+				}
+
+				String_Append(&new, String_Slice(*line, tabs));
+
+				*line = new;
+			}
 		}
 	}
 
 	String res = StringArray_Join(lines, $("\n"));
+
+	/* Free all lines in which the tabs were replaced. */
+	foreach (line, lines) {
+		if (line->mutable) {
+			String_Destroy(line);
+		}
+	}
 
 	StringArray_Free(lines);
 
