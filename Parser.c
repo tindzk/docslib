@@ -30,7 +30,7 @@ static struct {
 };
 
 Body_Style ref(ResolveStyle)(String name) {
-	forward(i, nElems(styles)) {
+	forward (i, nElems(styles)) {
 		if (String_Equals(name, styles[i].name)) {
 			return styles[i].style;
 		}
@@ -40,7 +40,7 @@ Body_Style ref(ResolveStyle)(String name) {
 }
 
 Body_BlockType ref(ResolveBlock)(String name) {
-	forward(i, nElems(blocks)) {
+	forward (i, nElems(blocks)) {
 		if (String_Equals(name, blocks[i].name)) {
 			return blocks[i].block;
 		}
@@ -182,7 +182,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 	Body *list = call(Enter, body);
 	call(SetList, list, ordered);
 
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -369,7 +369,7 @@ static def(String, CleanText, String value) {
 }
 
 static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) {
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Text) {
@@ -390,7 +390,7 @@ static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) 
 }
 
 static def(String, GetMetaValue, String name, Typography_Node *node) {
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -406,7 +406,7 @@ static def(String, GetMetaValue, String name, Typography_Node *node) {
 def(String, GetMeta, String name) {
 	Typography_Node *node = Typography_GetRoot(&this->tyo);
 
-	forward(i, node->len) {
+	forward (i, node->len) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
@@ -417,6 +417,35 @@ def(String, GetMeta, String name) {
 	}
 
 	return $("");
+}
+
+def(StringArray *, GetMultiMeta, String name) {
+	StringArray *res = StringArray_New(0);
+
+	Typography_Node *node = Typography_GetRoot(&this->tyo);
+
+	forward (i, node->len) {
+		Typography_Node *child = node->buf[i];
+
+		if (child->type == Typography_NodeType_Item) {
+			if (String_Equals(Typography_Item(child)->name, $("meta"))) {
+				forward (j, child->len) {
+					Typography_Node *child2 = child->buf[j];
+
+					if (child2->type == Typography_NodeType_Item) {
+						if (String_Equals(Typography_Item(child2)->name, name)) {
+							StringArray_Push(&res,
+								String_Disown(call(GetValue, child2)));
+						}
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	return res;
 }
 
 def(Body, GetBody, Typography_Node *node, String ignore) {

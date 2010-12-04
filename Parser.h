@@ -27,6 +27,7 @@ def(void, Destroy);
 def(void, Parse, String path);
 def(Typography_Node *, GetRoot);
 def(String, GetMeta, String name);
+def(StringArray *, GetMultiMeta, String name);
 def(Body, GetBody, Typography_Node *node, String ignore);
 def(ref(Nodes) *, GetNodes, Typography_Node *node);
 def(ref(Nodes) *, GetNodesByName, Typography_Node *node, String name);
