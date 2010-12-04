@@ -204,8 +204,6 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 }
 
 static def(String, CleanValue, String value) {
-	String out = value;
-
 	ssize_t pos = String_Find(value, '\n');
 
 	if (pos != String_NotFound) {
@@ -213,11 +211,47 @@ static def(String, CleanValue, String value) {
 
 		/* Skip first line if empty. */
 		if (String_Trim(firstLine).len == 0) {
-			out = String_Slice(value, pos + 1);
+			value = String_Slice(value, pos + 1);
 		}
 	}
 
-	return String_Trim(out, String_TrimRight);
+	value = String_Trim(value, String_TrimRight);
+
+	StringArray *lines = String_Split(value, '\n');
+
+	ssize_t unindent = -1;
+
+	foreach (line, lines) {
+		if (line->len == 0) {
+			continue;
+		}
+
+		size_t tabs = 0;
+
+		forward (i, line->len) {
+			if (line->buf[i] == '\t') {
+				tabs++;
+			} else {
+				break;
+			}
+		}
+
+		if (unindent == -1 || unindent > (ssize_t) tabs) {
+			unindent = tabs;
+		}
+	}
+
+	foreach (line, lines) {
+		if (line->len > 0) {
+			*line = String_Slice(*line, unindent);
+		}
+	}
+
+	String res = StringArray_Join(lines, $("\n"));
+
+	StringArray_Free(lines);
+
+	return res;
 }
 
 static def(void, ParseCommand, Body *body, Typography_Node *child) {
@@ -225,7 +259,7 @@ static def(void, ParseCommand, Body *body, Typography_Node *child) {
 	String cleaned = call(CleanValue, value);
 
 	Body *cmd = call(Enter, body);
-	call(SetCommand, cmd, String_Clone(cleaned));
+	call(SetCommand, cmd, cleaned);
 }
 
 static def(void, ParseCode, Body *body, Typography_Node *child) {
@@ -233,7 +267,7 @@ static def(void, ParseCode, Body *body, Typography_Node *child) {
 	String cleaned = call(CleanValue, value);
 
 	Body *code = call(Enter, body);
-	call(SetCode, code, String_Clone(cleaned));
+	call(SetCode, code, cleaned);
 }
 
 static def(void, ParseMail, Body *body, Typography_Node *child) {
