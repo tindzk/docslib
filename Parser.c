@@ -261,7 +261,7 @@ static def(String, CleanValue, String value) {
 			}
 
 			if (tabs > 0) {
-				String new = HeapString(line->len - tabs + tabs * 4);
+				String new = String_New(line->len - tabs + tabs * 4);
 
 				repeat (tabs * 4) {
 					new.buf[new.len] = ' ';
@@ -278,12 +278,7 @@ static def(String, CleanValue, String value) {
 	String res = StringArray_Join(lines, $("\n"));
 
 	/* Free all lines in which the tabs were replaced. */
-	foreach (line, lines) {
-		if (line->mutable) {
-			String_Destroy(line);
-		}
-	}
-
+	StringArray_Destroy(lines);
 	StringArray_Free(lines);
 
 	return res;
@@ -411,14 +406,14 @@ static def(void, AddText, Body *body, String text, int style) {
 		ssize_t pos = String_Find(text, last, $("\n\n"));
 
 		if (pos == String_NotFound) {
-			String_Crop(&text, last);
+			String_FastCrop(&text, last);
 
 			Body *elem = call(Enter, body);
 			call(SetText, elem, text, 0);
 
 			break;
 		} else {
-			String_Crop(&text, last, pos - last);
+			String_FastCrop(&text, last, pos - last);
 
 			Body *elem = call(Enter, body);
 			call(SetText, elem, text, 0);
@@ -446,11 +441,12 @@ static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) 
 				Typography_Text(child)->value);
 
 			if (i == 0) {
-				String_Trim(&text, String_TrimLeft);
+				text = String_Trim(text, String_TrimLeft);
 			} else if (i == node->len - 1) {
-				String_Trim(&text, String_TrimRight);
+				text = String_Trim(text, String_TrimRight);
 			}
 
+			text.inherited = false;
 			call(AddText, body, text, style);
 		} else if (child->type == Typography_NodeType_Item) {
 			call(ParseItem, body, child, style);
@@ -531,11 +527,12 @@ def(Body, GetBody, Typography_Node *node, String ignore) {
 				Typography_Text(child)->value);
 
 			if (i == 0) {
-				String_Trim(&text, String_TrimLeft);
+				text = String_Trim(text, String_TrimLeft);
 			} else if (i == node->len - 1) {
-				String_Trim(&text, String_TrimRight);
+				text = String_Trim(text, String_TrimRight);
 			}
 
+			text.inherited = false;
 			call(AddText, &body, text, 0);
 		} else if (child->type == Typography_NodeType_Item) {
 			if (String_Equals(Typography_Item(child)->name, ignore)) {

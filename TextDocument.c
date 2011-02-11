@@ -3,7 +3,7 @@
 #define self TextDocument
 
 def(void, Init, size_t lineLength) {
-	this->doc  = HeapString(1024);
+	this->doc  = String_New(1024);
 	this->line = $("");
 
 	this->fixed  = 0;
