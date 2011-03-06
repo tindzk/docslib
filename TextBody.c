@@ -30,8 +30,10 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 				String number = Integer_ToString(getIndex(item, body->nodes));
 				indent += number.len;
 
-				TextDocument_Add(doc, number);
+				TextDocument_Add(doc, number.prot);
 				TextDocument_Add(doc, $(". "));
+
+				String_Destroy(&number);
 			} else {
 				TextDocument_Add(doc, $("- "));
 			}
@@ -51,7 +53,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 	} else if (body->type == Body_Type_Text) {
 		static struct {
 			Body_Style style;
-			String     value;
+			ProtString value;
 		} styles[] = {
 			{ Body_Styles_Bold,     $("**") },
 			{ Body_Styles_Italic,   $("//") },
@@ -64,7 +66,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 			}
 		}
 
-		TextDocument_Add(doc, body->text.value);
+		TextDocument_Add(doc, body->text.value.prot);
 
 		reverse(i, nElems(styles) - 1) {
 			if (body->text.style & styles[i].style) {
@@ -73,7 +75,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		}
 	} else if (body->type == Body_Type_Image) {
 		TextDocument_Add(doc, $("[image: "));
-		TextDocument_Add(doc, body->image.path);
+		TextDocument_Add(doc, body->image.path.prot);
 		TextDocument_Add(doc, $("]"));
 	} else if (body->type == Body_Type_Jump) {
 		foreach (item, body->nodes) {
@@ -81,11 +83,11 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		}
 
 		TextDocument_Add(doc, $("(cf. '"));
-		TextDocument_Add(doc, body->jump.anchor);
+		TextDocument_Add(doc, body->jump.anchor.prot);
 		TextDocument_Add(doc, $("')"));
 	} else if (body->type == Body_Type_Anchor) {
 		TextDocument_Add(doc, $("["));
-		TextDocument_Add(doc, body->anchor.name);
+		TextDocument_Add(doc, body->anchor.name.prot);
 		TextDocument_Add(doc, $("]"));
 	} else if (body->type == Body_Type_Mail) {
 		foreach (item, body->nodes) {
@@ -93,7 +95,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		}
 
 		TextDocument_Add(doc, $(" ("));
-		TextDocument_Add(doc, body->mail.addr);
+		TextDocument_Add(doc, body->mail.addr.prot);
 		TextDocument_Add(doc, $(")"));
 	} else if (body->type == Body_Type_Url) {
 		foreach (item, body->nodes) {
@@ -101,13 +103,13 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		}
 
 		TextDocument_Add(doc, $(" ("));
-		TextDocument_Add(doc, body->url.url);
+		TextDocument_Add(doc, body->url.url.prot);
 		TextDocument_Add(doc, $(")"));
 	} else if (body->type == Body_Type_Command) {
 		TextDocument_Indent(doc);
 		TextDocument_AddLine(doc);
 
-		TextDocument_Add(doc, body->command.value);
+		TextDocument_Add(doc, body->command.value.prot);
 
 		TextDocument_Unindent(doc);
 		TextDocument_AddLine(doc);
@@ -116,7 +118,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Indent(doc);
 		TextDocument_AddLine(doc);
 
-		TextDocument_Add(doc, body->code.value);
+		TextDocument_Add(doc, body->code.value.prot);
 
 		TextDocument_Unindent(doc);
 		TextDocument_AddLine(doc);

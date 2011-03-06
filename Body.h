@@ -107,7 +107,7 @@ class {
 	BodyArray *nodes;
 };
 
-sdef(self, Empty);
+rsdef(self, New);
 def(void, Destroy);
 
 #undef self

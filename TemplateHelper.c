@@ -2,8 +2,8 @@
 
 static struct {
 	Body_Style style;
-	String     tag;
-	String     options;
+	ProtString tag;
+	ProtString options;
 } styles[] = {
 	{ Body_Styles_Bold,     $("b"),    $("")                   },
 	{ Body_Styles_Italic,   $("i"),    $("")                   },
@@ -17,7 +17,7 @@ static struct {
 	{ Body_Styles_Number,   $("span"), $("class=\"number\"")   }
 };
 
-overload void Template_Print(int style, String s, String *res) {
+overload void Template_Print(int style, ProtString s, String *res) {
 	forward(i, nElems(styles)) {
 		if (style & styles[i].style) {
 			String_Append(res, $("<"));

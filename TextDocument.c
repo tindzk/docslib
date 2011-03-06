@@ -59,7 +59,7 @@ def(void, Unindent) {
 }
 
 /* Word-aware String_Slice. */
-static def(String, _Slice, String s, size_t pos) {
+static def(ProtString, _Slice, ProtString s, size_t pos) {
 	size_t orig = s.len;
 
 	reverse(i, pos) {
@@ -89,15 +89,15 @@ static def(String, _Slice, String s, size_t pos) {
 	return s;
 }
 
-static def(void, _Add, String s) {
+static def(void, _Add, ProtString s) {
 	if (this->line.len + s.len > this->lineLength) {
 		ssize_t pos = this->lineLength - this->line.len;
 
-		String add = call(_Slice, s, pos);
+		ProtString add = call(_Slice, s, pos);
 		String_Append(&this->doc, add);
 
 		if (s.len > add.len) {
-			String next = String_Slice(s, add.len + 1);
+			ProtString next = String_Slice(s, add.len + 1);
 
 			call(AddLine);
 			call(_Add, next);
@@ -118,8 +118,8 @@ static def(void, _Add, String s) {
 }
 
 /* Makes sure that AddLine() is called for each line break. */
-def(void, Add, String s) {
-	StringArray *lines = String_Split(s, '\n');
+def(void, Add, ProtString s) {
+	ProtStringArray *lines = String_Split(s, '\n');
 
 	foreach (line, lines) {
 		call(_Add, *line);
@@ -129,5 +129,5 @@ def(void, Add, String s) {
 		}
 	}
 
-	StringArray_Free(lines);
+	ProtStringArray_Free(lines);
 }

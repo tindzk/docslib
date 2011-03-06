@@ -6,7 +6,7 @@
 
 class {
 	String doc;
-	String line; /* Points to the current line in `doc'. */
+	ProtString line; /* Points to the current line in `doc'. */
 	size_t offset;
 	size_t fixed;
 	size_t indent;
@@ -20,6 +20,6 @@ def(bool, HasTrailingLine);
 def(void, AddLine);
 def(void, Indent);
 def(void, Unindent);
-def(void, Add, String s);
+def(void, Add, ProtString s);
 
 #undef self

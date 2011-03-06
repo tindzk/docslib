@@ -2,13 +2,11 @@
 
 #define self Body
 
-sdef(self, Empty) {
-	self res;
-
-	res.type  = ref(Type_Empty);
-	res.nodes = NULL;
-
-	return res;
+rsdef(self, New) {
+	return (self) {
+		.type  = ref(Type_Empty),
+		.nodes = NULL
+	};
 }
 
 def(void, Destroy) {
@@ -33,7 +31,7 @@ def(void, Destroy) {
 	if (this->nodes != NULL) {
 		foreach (node, this->nodes) {
 			scall(Destroy, *node);
-			Memory_Free(*node);
+			Pool_Free(Pool_GetInstance(), *node);
 		}
 
 		BodyArray_Free(this->nodes);
