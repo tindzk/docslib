@@ -51,8 +51,28 @@ static sdef(Body_BlockType, ResolveBlock, ProtString name) {
 
 rsdef(self, New) {
 	return (self) {
-		.tyo = Typography_New()
+		.tyo = Typography_New(),
+		.footnotes = BodyArray_New(1024)
 	};
+}
+
+def(void, Destroy) {
+	Typography_Destroy(&this->tyo);
+
+	foreach (fn, this->footnotes) {
+		Body_Destroy(*fn);
+		Pool_Free(Pool_GetInstance(), *fn);
+	}
+
+	BodyArray_Free(this->footnotes);
+}
+
+def(BodyArray *, GetFootnotes) {
+	return this->footnotes;
+}
+
+def(Typography_Node *, GetRoot) {
+	return Typography_GetRoot(&this->tyo);
 }
 
 def(void, Parse, ProtString path) {
@@ -66,14 +86,6 @@ def(void, Parse, ProtString path) {
 
 	BufferedStream_Close(&stream);
 	BufferedStream_Destroy(&stream);
-}
-
-def(void, Destroy) {
-	Typography_Destroy(&this->tyo);
-}
-
-def(Typography_Node *, GetRoot) {
-	return Typography_GetRoot(&this->tyo);
 }
 
 static def(ProtString, GetValue, Typography_Node *node) {
@@ -108,13 +120,13 @@ static def(ProtString, GetValue, Typography_Node *node) {
 	return Typography_Text(child)->value.prot;
 }
 
-static def(Body *, Enter, Body *parent) {
+static def(Body *, Enter, BodyArray **arr) {
 	Body *body = Pool_Alloc(Pool_GetInstance(), sizeof(Body));
 
 	body->type  = Body_Type_Collection;
 	body->nodes = BodyArray_New(Body_DefaultLength);
 
-	BodyArray_Push(&parent->nodes, body);
+	BodyArray_Push(arr, body);
 
 	return body;
 }
@@ -184,7 +196,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 	ProtString options = String_Trim(Typography_Item(node)->options.prot);
 	bool ordered = String_Equals(options, $("ordered"));
 
-	Body *list = call(Enter, body);
+	Body *list = call(Enter, &body->nodes);
 	call(SetList, list, ordered);
 
 	forward (i, node->len) {
@@ -201,7 +213,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 				continue;
 			}
 
-			Body *listItem = call(Enter, list);
+			Body *listItem = call(Enter, &list->nodes);
 			call(SetListItem, listItem);
 
 			call(ParseStyleBlock, listItem, child, 0);
@@ -310,7 +322,7 @@ static def(void, ParseCommand, Body *body, Typography_Node *child) {
 	ProtString value = call(GetValue,   child);
 	String cleaned   = call(CleanValue, value);
 
-	Body *cmd = call(Enter, body);
+	Body *cmd = call(Enter, &body->nodes);
 	call(SetCommand, cmd, cleaned);
 }
 
@@ -318,14 +330,14 @@ static def(void, ParseCode, Body *body, Typography_Node *child) {
 	ProtString value = call(GetValue,   child);
 	String cleaned   = call(CleanValue, value);
 
-	Body *code = call(Enter, body);
+	Body *code = call(Enter, &body->nodes);
 	call(SetCode, code, cleaned);
 }
 
 static def(void, ParseMail, Body *body, Typography_Node *child) {
 	ProtString addr = String_Trim(Typography_Item(child)->options.prot);
 
-	Body *mail = call(Enter, body);
+	Body *mail = call(Enter, &body->nodes);
 	call(SetMail, mail, String_Clone(addr));
 
 	call(ParseStyleBlock, mail, child, 0);
@@ -334,14 +346,14 @@ static def(void, ParseMail, Body *body, Typography_Node *child) {
 static def(void, ParseAnchor, Body *body, Typography_Node *child) {
 	ProtString value = String_Trim(call(GetValue, child));
 
-	Body *anchor = call(Enter, body);
+	Body *anchor = call(Enter, &body->nodes);
 	call(SetAnchor, anchor, String_Clone(value));
 }
 
 static def(void, ParseJump, Body *body, Typography_Node *child) {
 	ProtString anchor = String_Trim(Typography_Item(child)->options.prot);
 
-	Body *jump = call(Enter, body);
+	Body *jump = call(Enter, &body->nodes);
 	call(SetJump, jump, String_Clone(anchor));
 
 	call(ParseStyleBlock, jump, child, 0);
@@ -350,7 +362,7 @@ static def(void, ParseJump, Body *body, Typography_Node *child) {
 static def(void, ParseUrl, Body *body, Typography_Node *child) {
 	ProtString url = String_Trim(Typography_Item(child)->options.prot);
 
-	Body *elem = call(Enter, body);
+	Body *elem = call(Enter, &body->nodes);
 	call(SetUrl, elem, String_Clone(url));
 
 	call(ParseStyleBlock, elem, child, 0);
@@ -359,22 +371,31 @@ static def(void, ParseUrl, Body *body, Typography_Node *child) {
 static def(void, ParseImage, Body *body, Typography_Node *child) {
 	ProtString path = String_Trim(call(GetValue, child));
 
-	Body *image = call(Enter, body);
+	Body *image = call(Enter, &body->nodes);
 	call(SetImage, image, String_Clone(path));
 }
 
 static def(void, ParseParagraph, Body *body, Typography_Node *child) {
-	Body *parag = call(Enter, body);
+	Body *parag = call(Enter, &body->nodes);
 	call(SetParagraph, parag);
 
 	call(ParseStyleBlock, parag, child, 0);
 }
 
 static def(void, ParseBlock, Body *body, Body_BlockType type, Typography_Node *child) {
-	Body *block = call(Enter, body);
+	Body *block = call(Enter, &body->nodes);
 	call(SetBlock, block, type);
 
 	call(ParseStyleBlock, block, child, 0);
+}
+
+static def(void, ParseFootnote, Body *body, Typography_Node *child) {
+	Body *fn = call(Enter, &this->footnotes);
+	call(ParseStyleBlock, fn, child, 0);
+
+	Body *fn2 = call(Enter, &body->nodes);
+	fn2->type = Body_Type_Footnote;
+	fn2->footnote.id = this->footnotes->len;
 }
 
 static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
@@ -406,6 +427,8 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 		call(ParseJump, body, child);
 	} else if (String_Equals(name, $("image"))) {
 		call(ParseImage, body, child);
+	} else if (String_Equals(name, $("footnote"))) {
+		call(ParseFootnote, body, child);
 	} else {
 		String line = Integer_ToString(child->line);
 		Logger_Error(&logger,
@@ -417,7 +440,7 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 
 static def(void, AddText, Body *body, String text, int style) {
 	if (style != 0) {
-		Body *elem = call(Enter, body);
+		Body *elem = call(Enter, &body->nodes);
 		call(SetText, elem, text, style);
 
 		return;
@@ -431,14 +454,14 @@ static def(void, AddText, Body *body, String text, int style) {
 		if (pos == String_NotFound) {
 			String_FastCrop(&text, last);
 
-			Body *elem = call(Enter, body);
+			Body *elem = call(Enter, &body->nodes);
 			call(SetText, elem, text, 0);
 
 			break;
 		} else {
 			String_FastCrop(&text, last, pos - last);
 
-			Body *elem = call(Enter, body);
+			Body *elem = call(Enter, &body->nodes);
 			call(SetText, elem, text, 0);
 		}
 

@@ -20,12 +20,14 @@ Array(ref(Node), ref(Nodes));
 
 class {
 	Typography tyo;
+	BodyArray *footnotes;
 };
 
 rsdef(self, New);
 def(void, Destroy);
-def(void, Parse, ProtString path);
+def(BodyArray *, GetFootnotes);
 def(Typography_Node *, GetRoot);
+def(void, Parse, ProtString path);
 def(ProtString, GetMeta, ProtString name);
 def(ProtStringArray *, GetMultiMeta, ProtString name);
 def(Body, GetBody, Typography_Node *node, ProtString ignore);

@@ -69,6 +69,10 @@ record(ref(Url)) {
 	String url;
 };
 
+record(ref(Footnote)) {
+	size_t id;
+};
+
 set(ref(Type)) {
 	ref(Type_Collection),
 	ref(Type_Block),
@@ -79,6 +83,7 @@ set(ref(Type)) {
 	ref(Type_Text),
 	ref(Type_Image),
 	ref(Type_Command),
+	ref(Type_Footnote),
 	ref(Type_Code),
 	ref(Type_Mail),
 	ref(Type_Anchor),
@@ -92,16 +97,17 @@ class {
 	ref(Type) type;
 
 	union {
-		ref(Url)     url;
-		ref(List)    list;
-		ref(Code)    code;
-		ref(Mail)    mail;
-		ref(Text)    text;
-		ref(Jump)    jump;
-		ref(Image)   image;
-		ref(Block)   block;
-		ref(Anchor)  anchor;
-		ref(Command) command;
+		ref(Url)      url;
+		ref(List)     list;
+		ref(Code)     code;
+		ref(Mail)     mail;
+		ref(Text)     text;
+		ref(Jump)     jump;
+		ref(Image)    image;
+		ref(Block)    block;
+		ref(Anchor)   anchor;
+		ref(Command)  command;
+		ref(Footnote) footnote;
 	};
 
 	BodyArray *nodes;
