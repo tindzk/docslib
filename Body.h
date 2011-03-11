@@ -88,6 +88,8 @@ set(ref(Type)) {
 	ref(Type_Mail),
 	ref(Type_Anchor),
 	ref(Type_Jump),
+	ref(Type_Figure),
+	ref(Type_Caption),
 	ref(Type_Empty)
 };
 

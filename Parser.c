@@ -398,6 +398,20 @@ static def(void, ParseFootnote, Body *body, Typography_Node *child) {
 	fn2->footnote.id = this->footnotes->len;
 }
 
+static def(void, ParseFigure, Body *body, Typography_Node *child) {
+	Body *block = call(Enter, &body->nodes);
+	block->type = Body_Type_Figure;
+
+	call(ParseStyleBlock, block, child, 0);
+}
+
+static def(void, ParseCaption, Body *body, Typography_Node *child) {
+	Body *block = call(Enter, &body->nodes);
+	block->type = Body_Type_Caption;
+
+	call(ParseStyleBlock, block, child, 0);
+}
+
 static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 	Body_Style _style;
 	Body_BlockType type;
@@ -429,6 +443,10 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 		call(ParseImage, body, child);
 	} else if (String_Equals(name, $("footnote"))) {
 		call(ParseFootnote, body, child);
+	} else if (String_Equals(name, $("figure"))) {
+		call(ParseFigure, body, child);
+	} else if (String_Equals(name, $("caption"))) {
+		call(ParseCaption, body, child);
 	} else {
 		String line = Integer_ToString(child->line);
 		Logger_Error(&logger,

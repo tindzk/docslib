@@ -51,6 +51,10 @@
 		<a name="{$body->anchor.name}"></a>
 	{else $body->type == Body_Type_Jump}
 		<a href="#{$body->jump.anchor}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
+	{else $body->type == Body_Type_Figure}
+		<div class="figure">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</div>
+	{else $body->type == Body_Type_Caption}
+		<div class="caption">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</div>
 	{else $body->type == Body_Type_Image}
 		<img src="{$body->image.path}" />
 	{end}
