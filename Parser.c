@@ -60,7 +60,7 @@ def(void, Destroy) {
 
 	each(fn, this->footnotes) {
 		Body_Destroy(*fn);
-		Pool_Free(Pool_GetInstance(), *fn);
+		Body_Free(*fn);
 	}
 
 	BodyArray_Free(this->footnotes);
@@ -120,7 +120,7 @@ static def(RdString, GetValue, Typography_Node *node) {
 }
 
 static def(Body *, Enter, BodyArray **arr) {
-	Body *body = Pool_Alloc(Pool_GetInstance(), sizeof(Body));
+	Body *body = Body_Alloc();
 
 	body->type  = Body_Type_Collection;
 	body->nodes = BodyArray_New(Body_DefaultLength);

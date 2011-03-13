@@ -115,6 +115,8 @@ class {
 	BodyArray *nodes;
 };
 
+MemoryHelpers(self);
+
 rsdef(self, New);
 def(void, Destroy);
 

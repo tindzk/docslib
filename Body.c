@@ -31,7 +31,7 @@ def(void, Destroy) {
 	if (this->nodes != NULL) {
 		each(node, this->nodes) {
 			scall(Destroy, *node);
-			Pool_Free(Pool_GetInstance(), *node);
+			Body_Free(*node);
 		}
 
 		BodyArray_Free(this->nodes);
