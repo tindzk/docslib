@@ -29,7 +29,7 @@ def(void, Destroy) {
 	}
 
 	if (this->nodes != NULL) {
-		foreach (node, this->nodes) {
+		each(node, this->nodes) {
 			scall(Destroy, *node);
 			Pool_Free(Pool_GetInstance(), *node);
 		}

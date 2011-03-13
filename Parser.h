@@ -11,8 +11,8 @@
 #define self Parser
 
 record(ref(Node)) {
-	ProtString name;
-	ProtString options;
+	RdString name;
+	RdString options;
 	Typography_Node *node;
 };
 
@@ -20,19 +20,20 @@ Array(ref(Node), ref(Nodes));
 
 class {
 	Typography tyo;
-	BodyArray *footnotes;
+	Logger     *logger;
+	BodyArray  *footnotes;
 };
 
 rsdef(self, New);
 def(void, Destroy);
 def(BodyArray *, GetFootnotes);
 def(Typography_Node *, GetRoot);
-def(void, Parse, ProtString path);
-def(ProtString, GetMeta, ProtString name);
-def(ProtStringArray *, GetMultiMeta, ProtString name);
-def(Body, GetBody, Typography_Node *node, ProtString ignore);
+def(void, Parse, RdString path);
+def(RdString, GetMeta, RdString name);
+def(RdStringArray *, GetMultiMeta, RdString name);
+def(Body, GetBody, Typography_Node *node, RdString ignore);
 def(ref(Nodes) *, GetNodes, Typography_Node *node);
-def(ref(Nodes) *, GetNodesByName, Typography_Node *node, ProtString name);
-def(ref(Node), GetNodeByName, ProtString name);
+def(ref(Nodes) *, GetNodesByName, Typography_Node *node, RdString name);
+def(ref(Node), GetNodeByName, RdString name);
 
 #undef self

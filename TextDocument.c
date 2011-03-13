@@ -59,7 +59,7 @@ def(void, Unindent) {
 }
 
 /* Word-aware String_Slice. */
-static def(ProtString, _Slice, ProtString s, size_t pos) {
+static def(RdString, _Slice, RdString s, size_t pos) {
 	size_t orig = s.len;
 
 	reverse(i, pos) {
@@ -89,15 +89,15 @@ static def(ProtString, _Slice, ProtString s, size_t pos) {
 	return s;
 }
 
-static def(void, _Add, ProtString s) {
+static def(void, _Add, RdString s) {
 	if (this->line.len + s.len > this->lineLength) {
 		ssize_t pos = this->lineLength - this->line.len;
 
-		ProtString add = call(_Slice, s, pos);
+		RdString add = call(_Slice, s, pos);
 		String_Append(&this->doc, add);
 
 		if (s.len > add.len) {
-			ProtString next = String_Slice(s, add.len + 1);
+			RdString next = String_Slice(s, add.len + 1);
 
 			call(AddLine);
 			call(_Add, next);
@@ -118,8 +118,8 @@ static def(void, _Add, ProtString s) {
 }
 
 /* Makes sure that AddLine() is called for each line break. */
-def(void, Add, ProtString s) {
-	ProtStringArray *lines = String_Split(s, '\n');
+def(void, Add, RdString s) {
+	RdStringArray *lines = String_Split(s, '\n');
 
 	foreach (line, lines) {
 		call(_Add, *line);
@@ -129,5 +129,5 @@ def(void, Add, ProtString s) {
 		}
 	}
 
-	ProtStringArray_Free(lines);
+	RdStringArray_Free(lines);
 }
