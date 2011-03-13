@@ -35,12 +35,12 @@ def(void, AddLine) {
 
 	this->offset = this->doc.len;
 
-	repeat (this->fixed) {
+	rpt(this->fixed) {
 		String_Append(&this->doc, ' ');
 		this->line.len++;
 	}
 
-	repeat (this->indent) {
+	rpt(this->indent) {
 		String_Append(&this->doc, $("  "));
 		this->line.len += 2;
 	}
@@ -62,7 +62,7 @@ def(void, Unindent) {
 static def(RdString, _Slice, RdString s, size_t pos) {
 	size_t orig = s.len;
 
-	reverse(i, pos) {
+	bwd(i, pos) {
 		s.len = i;
 
 		if (s.buf[i] == ' ' ||
@@ -121,7 +121,7 @@ static def(void, _Add, RdString s) {
 def(void, Add, RdString s) {
 	RdStringArray *lines = String_Split(s, '\n');
 
-	foreach (line, lines) {
+	each(line, lines) {
 		call(_Add, *line);
 
 		if (lines->len > 1) {

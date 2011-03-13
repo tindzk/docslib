@@ -4,7 +4,7 @@
 
 sdef(void, Process, Body *body, TextDocumentInstance doc) {
 	if (body->type == Body_Type_Collection) {
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 	} else if (body->type == Body_Type_Paragraph) {
@@ -12,7 +12,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 			TextDocument_AddLine(doc);
 		}
 
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 
@@ -23,7 +23,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Indent(doc);
 		TextDocument_AddLine(doc);
 
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			size_t indent = 2;
 
 			if (ordered) {
@@ -47,7 +47,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 
 		TextDocument_Unindent(doc);
 	} else if (body->type == Body_Type_ListItem) {
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 	} else if (body->type == Body_Type_Text) {
@@ -60,7 +60,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 			{ Body_Styles_Term,     $("``") }
 		};
 
-		forward (i, nElems(styles)) {
+		fwd(i, nElems(styles)) {
 			if (body->text.style & styles[i].style) {
 				TextDocument_Add(doc, styles[i].value);
 			}
@@ -68,7 +68,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 
 		TextDocument_Add(doc, body->text.value.rd);
 
-		reverse(i, nElems(styles) - 1) {
+		bwd(i, nElems(styles) - 1) {
 			if (body->text.style & styles[i].style) {
 				TextDocument_Add(doc, styles[i].value);
 			}
@@ -78,7 +78,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Add(doc, body->image.path.rd);
 		TextDocument_Add(doc, $("]"));
 	} else if (body->type == Body_Type_Jump) {
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 
@@ -90,7 +90,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Add(doc, body->anchor.name.rd);
 		TextDocument_Add(doc, $("]"));
 	} else if (body->type == Body_Type_Mail) {
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 
@@ -98,7 +98,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Add(doc, body->mail.addr.rd);
 		TextDocument_Add(doc, $(")"));
 	} else if (body->type == Body_Type_Url) {
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 
@@ -133,7 +133,7 @@ sdef(void, Process, Body *body, TextDocumentInstance doc) {
 		TextDocument_Indent(doc);
 		TextDocument_AddLine(doc);
 
-		foreach (item, body->nodes) {
+		each(item, body->nodes) {
 			scall(Process, *item, doc);
 		}
 
