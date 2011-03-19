@@ -116,7 +116,7 @@ static def(RdString, GetValue, Typography_Node *node) {
 		return $("");
 	}
 
-	return Typography_Text(child)->value.rd;
+	return Typography_Text_GetValue(child);
 }
 
 static def(Body *, Enter, BodyArray **arr) {
@@ -133,7 +133,7 @@ static def(Body *, Enter, BodyArray **arr) {
 static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style);
 
 static def(void, ParseList, Body *body, Typography_Node *node) {
-	RdString options = String_Trim(Typography_Item(node)->options.rd);
+	RdString options = String_Trim(Typography_Item_GetOptions(node));
 	bool ordered = String_Equals(options, $("ordered"));
 
 	Body *list = call(Enter, &body->nodes);
@@ -144,11 +144,11 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (!String_Equals(Typography_Item(child)->name.rd, $("item"))) {
+			if (!String_Equals(Typography_Item_GetName(child), $("item"))) {
 				String line = Integer_ToString(child->line);
 				Logger_Error(this->logger,
 					$("line %: got '%', 'item' expected."),
-					line.rd, Typography_Item(child)->name.rd);
+					line.rd, Typography_Item_GetName(child));
 				String_Destroy(&line);
 
 				continue;
@@ -278,7 +278,7 @@ static def(void, ParseCode, Body *body, Typography_Node *child) {
 }
 
 static def(void, ParseMail, Body *body, Typography_Node *child) {
-	RdString addr = String_Trim(Typography_Item(child)->options.rd);
+	RdString addr = String_Trim(Typography_Item_GetOptions(child));
 
 	Body *elem = call(Enter, &body->nodes);
 	elem->type      = Body_Type_Mail;
@@ -296,7 +296,7 @@ static def(void, ParseAnchor, Body *body, Typography_Node *child) {
 }
 
 static def(void, ParseJump, Body *body, Typography_Node *child) {
-	RdString anchor = String_Trim(Typography_Item(child)->options.rd);
+	RdString anchor = String_Trim(Typography_Item_GetOptions(child));
 
 	Body *elem = call(Enter, &body->nodes);
 	elem->type        = Body_Type_Jump;
@@ -306,7 +306,7 @@ static def(void, ParseJump, Body *body, Typography_Node *child) {
 }
 
 static def(void, ParseUrl, Body *body, Typography_Node *child) {
-	RdString url = String_Trim(Typography_Item(child)->options.rd);
+	RdString url = String_Trim(Typography_Item_GetOptions(child));
 
 	Body *elem = call(Enter, &body->nodes);
 	elem->type    = Body_Type_Url;
@@ -365,7 +365,7 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 	Body_Style _style;
 	Body_BlockType type;
 
-	RdString name = Typography_Item(child)->name.rd;
+	RdString name = Typography_Item_GetName(child);
 
 	if ((_style = scall(ResolveStyle, name)) != Body_Styles_None) {
 		BitMask_Set(style, _style);
@@ -400,7 +400,7 @@ static def(void, ParseItem, Body *body, Typography_Node *child, int style) {
 		String line = Integer_ToString(child->line);
 		Logger_Error(this->logger,
 			$("line %: '%' not understood."),
-			line.rd, Typography_Item(child)->name.rd);
+			line.rd, name);
 		String_Destroy(&line);
 	}
 }
@@ -425,14 +425,14 @@ static def(void, AddText, Body *body, String text, int style) {
 		ssize_t pos = String_Find(text.rd, last, $("\n\n"));
 
 		if (pos == String_NotFound) {
-			String_FastCrop(&text, last);
+			String_Crop(&text, last);
 
 			Body *elem = call(Enter, &body->nodes);
 			call(SetText, elem, text, 0);
 
 			break;
 		} else {
-			String_FastCrop(&text, last, pos - last);
+			String_Crop(&text, last, pos - last);
 
 			Body *elem = call(Enter, &body->nodes);
 			call(SetText, elem, text, 0);
@@ -456,8 +456,7 @@ static def(void, ParseStyleBlock, Body *body, Typography_Node *node, int style) 
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Text) {
-			String text = call(CleanText,
-				Typography_Text(child)->value.rd);
+			String text = call(CleanText, Typography_Text_GetValue(child));
 
 			if (i == 0) {
 				String_Copy(&text, String_Trim(text.rd, String_TrimLeft));
@@ -477,7 +476,7 @@ static def(RdString, GetMetaValue, RdString name, Typography_Node *node) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (String_Equals(Typography_Item(child)->name.rd, name)) {
+			if (String_Equals(Typography_Item_GetName(child), name)) {
 				return call(GetValue, child);
 			}
 		}
@@ -493,7 +492,7 @@ def(RdString, GetMeta, RdString name) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (String_Equals(Typography_Item(child)->name.rd, $("meta"))) {
+			if (String_Equals(Typography_Item_GetName(child), $("meta"))) {
 				return call(GetMetaValue, name, child);
 			}
 		}
@@ -511,12 +510,12 @@ def(RdStringArray *, GetMultiMeta, RdString name) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (String_Equals(Typography_Item(child)->name.rd, $("meta"))) {
+			if (String_Equals(Typography_Item_GetName(child), $("meta"))) {
 				fwd(j, child->len) {
 					Typography_Node *child2 = child->buf[j];
 
 					if (child2->type == Typography_NodeType_Item) {
-						if (String_Equals(Typography_Item(child2)->name.rd, name)) {
+						if (String_Equals(Typography_Item_GetName(child2), name)) {
 							RdStringArray_Push(&res,
 								call(GetValue, child2));
 						}
@@ -541,8 +540,7 @@ def(Body, GetBody, Typography_Node *node, RdString ignore) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Text) {
-			String text = call(CleanText,
-				Typography_Text(child)->value.rd);
+			String text = call(CleanText, Typography_Text_GetValue(child));
 
 			if (i == 0) {
 				String_Copy(&text, String_Trim(text.rd, String_TrimLeft));
@@ -552,7 +550,7 @@ def(Body, GetBody, Typography_Node *node, RdString ignore) {
 
 			call(AddText, &body, text, 0);
 		} else if (child->type == Typography_NodeType_Item) {
-			if (String_Equals(Typography_Item(child)->name.rd, ignore)) {
+			if (String_Equals(Typography_Item_GetName(child), ignore)) {
 				continue;
 			}
 
@@ -571,8 +569,8 @@ def(ref(Nodes) *, GetNodes, Typography_Node *node) {
 
 		if (child->type == Typography_NodeType_Item) {
 			ref(Node) node = {
-				.name    = Typography_Item(child)->name.rd,
-				.options = Typography_Item(child)->options.rd,
+				.name    = Typography_Item_GetName(child),
+				.options = Typography_Item_GetOptions(child),
 				.node    = child
 			};
 
@@ -590,13 +588,13 @@ def(ref(Nodes) *, GetNodesByName, Typography_Node *node, RdString name) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (!String_Equals(Typography_Item(child)->name.rd, name)) {
+			if (!String_Equals(Typography_Item_GetName(child), name)) {
 				continue;
 			}
 
 			ref(Node) node = {
-				.name    = Typography_Item(child)->name.rd,
-				.options = Typography_Item(child)->options.rd,
+				.name    = Typography_Item_GetName(child),
+				.options = Typography_Item_GetOptions(child),
 				.node    = child
 			};
 
@@ -614,10 +612,10 @@ def(ref(Node), GetNodeByName, RdString name) {
 		Typography_Node *child = node->buf[i];
 
 		if (child->type == Typography_NodeType_Item) {
-			if (String_Equals(Typography_Item(child)->name.rd, name)) {
+			if (String_Equals(Typography_Item_GetName(child), name)) {
 				return (ref(Node)) {
 					.name    = name,
-					.options = Typography_Item(child)->options.rd,
+					.options = Typography_Item_GetOptions(child),
 					.node    = child
 				};
 			}
