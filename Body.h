@@ -120,4 +120,11 @@ MemoryHelpers(self);
 rsdef(self, New);
 def(void, Destroy);
 
+static inline void BodyArray_Destroy(BodyArray *nodes) {
+	each(node, nodes) {
+		Body_Destroy(*node);
+		Body_Free(*node);
+	}
+}
+
 #undef self

@@ -58,11 +58,7 @@ rsdef(self, New, Logger *logger) {
 def(void, Destroy) {
 	Typography_Destroy(&this->tyo);
 
-	each(fn, this->footnotes) {
-		Body_Destroy(*fn);
-		Body_Free(*fn);
-	}
-
+	BodyArray_Destroy(this->footnotes);
 	BodyArray_Free(this->footnotes);
 }
 

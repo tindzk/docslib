@@ -29,11 +29,7 @@ def(void, Destroy) {
 	}
 
 	if (this->nodes != NULL) {
-		each(node, this->nodes) {
-			scall(Destroy, *node);
-			Body_Free(*node);
-		}
-
+		BodyArray_Destroy(this->nodes);
 		BodyArray_Free(this->nodes);
 	}
 
