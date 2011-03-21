@@ -22,16 +22,18 @@ class {
 	Typography tyo;
 	Logger     *logger;
 	BodyArray  *footnotes;
+	bool       autoDetectParagraphs;
 };
 
 rsdef(self, New);
 def(void, Destroy);
+def(void, SetAutoDetectParagraphs, bool value);
 def(BodyArray *, GetFootnotes);
 def(Typography_Node *, GetRoot);
 def(void, Parse, RdString path);
 def(RdString, GetMeta, RdString name);
 def(RdStringArray *, GetMultiMeta, RdString name);
-def(Body, GetBody, Typography_Node *node, RdString ignore);
+def(Body, GetBody, Typography_Node *node);
 def(ref(Nodes) *, GetNodes, Typography_Node *node);
 def(ref(Nodes) *, GetNodesByName, Typography_Node *node, RdString name);
 def(ref(Node), GetNodeByName, RdString name);

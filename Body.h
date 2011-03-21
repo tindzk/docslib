@@ -7,7 +7,7 @@
 #define Body_DefaultLength 128
 #endif
 
-set(ref(Style)) {
+set(ref(StyleType)) {
 	ref(Styles_None)     = 0,
 	ref(Styles_Bold)     = Bit(0),
 	ref(Styles_Italic)   = Bit(1),
@@ -30,7 +30,10 @@ set(ref(BlockType)) {
 
 record(ref(Text)) {
 	String value;
-	int style;
+};
+
+record(ref(Style)) {
+	ref(StyleType) type;
 };
 
 record(ref(Block)) {
@@ -81,6 +84,7 @@ set(ref(Type)) {
 	ref(Type_ListItem),
 	ref(Type_Url),
 	ref(Type_Text),
+	ref(Type_Style),
 	ref(Type_Image),
 	ref(Type_Command),
 	ref(Type_Footnote),
@@ -105,6 +109,7 @@ class {
 		ref(Mail)     mail;
 		ref(Text)     text;
 		ref(Jump)     jump;
+		ref(Style)    style;
 		ref(Image)    image;
 		ref(Block)    block;
 		ref(Anchor)   anchor;

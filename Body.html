@@ -39,8 +39,10 @@
 		<li>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</li>
 	{else $body->type == Body_Type_Url}
 		<a href="{$body->url.url}">{for $entry in $body->nodes}{block bodyEntry $entry}{end}</a>
+	{else $body->type == Body_Type_Style}
+		{$(OpenStyle)$body->style.type}{for $entry in $body->nodes}{block bodyEntry $entry}{end}{$(CloseStyle)$body->style.type}
 	{else $body->type == Body_Type_Text}
-		{$body->text.style, $body->text.value.rd}
+		{$body->text.value}
 	{else $body->type == Body_Type_Command}
 		<pre class="code">{$body->command.value}</pre>
 	{else $body->type == Body_Type_Code}
