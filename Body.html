@@ -5,6 +5,8 @@
 		<p>{for $entry in $body->nodes}{block bodyEntry $entry}{end}</p>
 	{else $body->type == Body_Type_Footnote}
 		<sup class="footnote" id="fnref{$body->footnote.id}"><a href="#fn{$body->footnote.id}">{$body->footnote.id}</a></sup>
+	{else $body->type == Body_Type_Math}
+		\\[{$body->math.value}\\]
 	{else $body->type == Body_Type_Block}
 		{if $body->block.type == Body_BlockType_Note}
 			<p class="note">

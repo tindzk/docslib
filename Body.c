@@ -2,11 +2,13 @@
 
 #define self Body
 
-rsdef(self, New) {
-	return (self) {
-		.type  = ref(Type_Empty),
-		.nodes = NULL
-	};
+rsdef(self *, New, ref(Type) type) {
+	self *ptr = Memory_New(sizeof(self));
+
+	ptr->type  = type;
+	ptr->nodes = BodyArray_New(ref(DefaultLength));
+
+	return ptr;
 }
 
 def(void, Destroy) {

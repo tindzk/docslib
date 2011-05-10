@@ -16,7 +16,12 @@ record(ref(Node)) {
 	Typography_Node *node;
 };
 
-Array(ref(Node), ref(Nodes));
+Callback(ref(OnNode), void, ref(Node) *node);
+
+record(ref(Handler)) {
+	RdString    name;
+	ref(OnNode) onNode;
+};
 
 class {
 	Typography tyo;
@@ -33,9 +38,8 @@ def(Typography_Node *, GetRoot);
 def(void, Parse, RdString path);
 def(RdString, GetMeta, RdString name);
 def(RdStringArray *, GetMultiMeta, RdString name);
-def(Body, GetBody, Typography_Node *node);
-def(ref(Nodes) *, GetNodes, Typography_Node *node);
-def(ref(Nodes) *, GetNodesByName, Typography_Node *node, RdString name);
+def(void, ProcessNodes, Typography_Node *node, ref(Handler) *handlers);
+def(Body, ProcessBody, Typography_Node *node, ref(Handler) *handlers);
 def(ref(Node), GetNodeByName, RdString name);
 
 #undef self

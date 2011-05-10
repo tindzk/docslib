@@ -52,6 +52,10 @@ record(ref(Code)) {
 	String value;
 };
 
+record(ref(Math)) {
+	String value;
+};
+
 record(ref(Mail)) {
 	String addr;
 };
@@ -86,6 +90,7 @@ set(ref(Type)) {
 	ref(Type_Text),
 	ref(Type_Style),
 	ref(Type_Image),
+	ref(Type_Math),
 	ref(Type_Command),
 	ref(Type_Footnote),
 	ref(Type_Code),
@@ -106,6 +111,7 @@ class {
 		ref(Url)      url;
 		ref(List)     list;
 		ref(Code)     code;
+		ref(Math)     math;
 		ref(Mail)     mail;
 		ref(Text)     text;
 		ref(Jump)     jump;
@@ -120,15 +126,12 @@ class {
 	BodyArray *nodes;
 };
 
-MemoryHelpers(self);
-
-rsdef(self, New);
+rsdef(self *, New, ref(Type) type);
 def(void, Destroy);
 
 static inline void BodyArray_Destroy(BodyArray *nodes) {
 	each(node, nodes) {
 		Body_Destroy(*node);
-		Body_Free(*node);
 	}
 }
 

@@ -75,8 +75,7 @@ def(Typography_Node *, GetRoot) {
 }
 
 def(void, Parse, RdString path) {
-	File file;
-	File_Open(&file, path, FileStatus_ReadOnly);
+	File file = File_New(path, FileStatus_ReadOnly);
 
 	BufferedStream stream = BufferedStream_New(File_AsStream(&file));
 	BufferedStream_SetInputBuffer(&stream, 1024, 128);
@@ -120,17 +119,13 @@ static def(RdString, GetValue, Typography_Node *node) {
 }
 
 static def(Body *, Enter, BodyArray **arr) {
-	Body *body = Body_Alloc();
-
-	body->type  = Body_Type_Collection;
-	body->nodes = BodyArray_New(Body_DefaultLength);
-
+	Body *body = Body_New(Body_Type_Collection);
 	BodyArray_Push(arr, body);
 
 	return body;
 }
 
-static def(void, ParseText, Body *body, Typography_Node *node);
+static def(void, ParseText, Body *body, Typography_Node *node, ref(Handler) *handlers);
 
 static def(void, ParseList, Body *body, Typography_Node *node) {
 	RdString options = String_Trim(Typography_Item_GetOptions(node));
@@ -157,7 +152,7 @@ static def(void, ParseList, Body *body, Typography_Node *node) {
 			Body *listItem = call(Enter, &list->nodes);
 			listItem->type = Body_Type_ListItem;
 
-			call(ParseText, listItem, child);
+			call(ParseText, listItem, child, NULL);
 		}
 	}
 }
@@ -277,6 +272,14 @@ static def(void, ParseCode, Body *body, Typography_Node *child) {
 	elem->code.value = cleaned;
 }
 
+static def(void, ParseMath, Body *body, Typography_Node *child) {
+	RdString value = call(GetValue, child);
+
+	Body *elem = call(Enter, &body->nodes);
+	elem->type       = Body_Type_Math;
+	elem->math.value = String_Clone(value);
+}
+
 static def(void, ParseMail, Body *body, Typography_Node *child) {
 	RdString addr = String_Trim(Typography_Item_GetOptions(child));
 
@@ -284,7 +287,7 @@ static def(void, ParseMail, Body *body, Typography_Node *child) {
 	elem->type      = Body_Type_Mail;
 	elem->mail.addr = String_Clone(addr);
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseAnchor, Body *body, Typography_Node *child) {
@@ -302,7 +305,7 @@ static def(void, ParseJump, Body *body, Typography_Node *child) {
 	elem->type        = Body_Type_Jump;
 	elem->jump.anchor = String_Clone(anchor);
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseUrl, Body *body, Typography_Node *child) {
@@ -312,7 +315,7 @@ static def(void, ParseUrl, Body *body, Typography_Node *child) {
 	elem->type    = Body_Type_Url;
 	elem->url.url = String_Clone(url);
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseImage, Body *body, Typography_Node *child) {
@@ -327,7 +330,7 @@ static def(void, ParseParagraph, Body *body, Typography_Node *child) {
 	Body *elem = call(Enter, &body->nodes);
 	elem->type = Body_Type_Paragraph;
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseBlock, Body *body, Body_BlockType type, Typography_Node *child) {
@@ -335,7 +338,7 @@ static def(void, ParseBlock, Body *body, Body_BlockType type, Typography_Node *c
 	elem->type       = Body_Type_Block;
 	elem->block.type = type;
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseStyle, Body *body, Body_StyleType type, Typography_Node *child) {
@@ -343,12 +346,12 @@ static def(void, ParseStyle, Body *body, Body_StyleType type, Typography_Node *c
 	elem->type        = Body_Type_Style;
 	elem->style.type = type;
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseFootnote, Body *body, Typography_Node *child) {
 	Body *elem = call(Enter, &this->footnotes);
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 
 	Body *elem2 = call(Enter, &body->nodes);
 	elem2->type        = Body_Type_Footnote;
@@ -359,14 +362,14 @@ static def(void, ParseFigure, Body *body, Typography_Node *child) {
 	Body *elem = call(Enter, &body->nodes);
 	elem->type = Body_Type_Figure;
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseCaption, Body *body, Typography_Node *child) {
 	Body *elem = call(Enter, &body->nodes);
 	elem->type = Body_Type_Caption;
 
-	call(ParseText, elem, child);
+	call(ParseText, elem, child, NULL);
 }
 
 static def(void, ParseItem, Body *body, Typography_Node *child) {
@@ -383,6 +386,8 @@ static def(void, ParseItem, Body *body, Typography_Node *child) {
 		call(ParseList, body, child);
 	} else if (String_Equals(name, $("p"))) {
 		call(ParseParagraph, body, child);
+	} else if (String_Equals(name, $("math"))) {
+		call(ParseMath, body, child);
 	} else if (String_Equals(name, $("url"))) {
 		call(ParseUrl, body, child);
 	} else if (String_Equals(name, $("command"))) {
@@ -427,7 +432,17 @@ static def(void, SetText, Body *body, String text) {
 	elem->text.value = text;
 }
 
-static def(void, ParseText, Body *body, Typography_Node *node) {
+static def(ref(Handler) *, GetHandler, RdString name, ref(Handler) *handlers) {
+	for (; handlers->name.len != 0; handlers++) {
+		if (String_Equals(name, handlers->name)) {
+			return handlers;
+		}
+	}
+
+	return NULL;
+}
+
+static def(void, ParseText, Body *body, Typography_Node *node, ref(Handler) *handlers) {
 	Body *elem = body;
 
 	fwd(i, node->len) {
@@ -471,7 +486,27 @@ static def(void, ParseText, Body *body, Typography_Node *node) {
 				}
 			}
 		} else if (child->type == Typography_NodeType_Item) {
-			call(ParseItem, elem, child);
+			if (handlers == NULL) {
+				goto fallback;
+			}
+
+			ref(Node) node = {
+				.name    = Typography_Item_GetName(child),
+				.options = Typography_Item_GetOptions(child),
+				.node    = child
+			};
+
+			ref(Handler) *handler = call(GetHandler, node.name, handlers);
+
+			if (handler == NULL) {
+				goto fallback;
+			}
+
+			callback(handler->onNode, &node);
+
+			when (fallback) {
+				call(ParseItem, elem, child);
+			}
 		}
 	}
 }
@@ -535,59 +570,43 @@ def(RdStringArray *, GetMultiMeta, RdString name) {
 	return res;
 }
 
-def(Body, GetBody, Typography_Node *node) {
+def(void, ProcessNodes, Typography_Node *node, ref(Handler) *handlers) {
+	fwd(i, node->len) {
+		Typography_Node *child = node->buf[i];
+
+		if (child->type == Typography_NodeType_Item) {
+			ref(Node) node = {
+				.name    = Typography_Item_GetName(child),
+				.options = Typography_Item_GetOptions(child),
+				.node    = child
+			};
+
+			ref(Handler) *handler = call(GetHandler, node.name, handlers);
+
+			if (handler == NULL) {
+				String line = Integer_ToString(child->line);
+				Logger_Error(this->logger,
+					$("line %: '%' not understood."),
+					line.rd, node.name);
+				String_Destroy(&line);
+
+				continue;
+			}
+
+			callback(handler->onNode, &node);
+		}
+	}
+}
+
+def(Body, ProcessBody, Typography_Node *node, ref(Handler) *handlers) {
 	Body body = {
 		.type  = Body_Type_Collection,
 		.nodes = BodyArray_New(Body_DefaultLength)
 	};
 
-	call(ParseText, &body, node);
+	call(ParseText, &body, node, handlers);
 
 	return body;
-}
-
-def(ref(Nodes) *, GetNodes, Typography_Node *node) {
-	ref(Nodes) *res = scall(Nodes_New, 0);
-
-	fwd(i, node->len) {
-		Typography_Node *child = node->buf[i];
-
-		if (child->type == Typography_NodeType_Item) {
-			ref(Node) node = {
-				.name    = Typography_Item_GetName(child),
-				.options = Typography_Item_GetOptions(child),
-				.node    = child
-			};
-
-			scall(Nodes_Push, &res, node);
-		}
-	}
-
-	return res;
-}
-
-def(ref(Nodes) *, GetNodesByName, Typography_Node *node, RdString name) {
-	ref(Nodes) *res = scall(Nodes_New, 0);
-
-	fwd(i, node->len) {
-		Typography_Node *child = node->buf[i];
-
-		if (child->type == Typography_NodeType_Item) {
-			if (!String_Equals(Typography_Item_GetName(child), name)) {
-				continue;
-			}
-
-			ref(Node) node = {
-				.name    = Typography_Item_GetName(child),
-				.options = Typography_Item_GetOptions(child),
-				.node    = child
-			};
-
-			scall(Nodes_Push, &res, node);
-		}
-	}
-
-	return res;
 }
 
 def(ref(Node), GetNodeByName, RdString name) {
